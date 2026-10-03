@@ -532,6 +532,52 @@ namespace WFNG
 		it->second.nextUpdate = Clock::now() + a_delay;
 	}
 
+	void Manager::OnBathed(RE::Actor* a_actor)
+	{
+		const auto& settings = Settings::Get();
+		if (!a_actor || !settings.bBathingSoak || (a_actor->IsPlayerRef() && !settings.bPlayerEnabled)) {
+			return;
+		}
+		std::scoped_lock lock(_lock);
+		// NPCs get an auto-apply window long enough to dry off; the player and manual actors are already managed
+		if (!AutoApply(a_actor, settings.fBathingDuration, true, true) && !IsActive(a_actor)) {
+			return;
+		}
+		auto& record = Record(a_actor->GetFormID());
+		if (!record.active) {
+			return;  // the player's record is started by the next tick
+		}
+		const float wetness = std::clamp(settings.fBathingWetness, 0.0f, settings.fWetnessCap);
+		record.wetness = std::max(record.wetness, wetness);
+		record.recentStrength = 1.0f;  // water, not sweat
+		// BiS repaints its dirt overlays right after the wash and may rebuild the 3D, so push the wet look after it
+		Visuals::Invalidate(a_actor->GetFormID());
+		record.nextUpdate = Clock::now() + 1500ms;
+		logger::info("{} bathed: wetness {:.1f}", a_actor->GetName(), record.wetness);
+	}
+
+	void Manager::RefreshAll(std::chrono::milliseconds a_delay)
+	{
+		if (!Settings::Get().bRefreshOnRebuild) {
+			return;
+		}
+		std::scoped_lock lock(_lock);
+		const auto       when = Clock::now() + a_delay;
+		std::size_t      count = 0;
+		for (auto& [id, record] : _records) {
+			if (!record.active) {
+				continue;
+			}
+			const auto* actor = LookupActor(id);
+			if (actor && actor->Is3DLoaded()) {
+				Visuals::Invalidate(id);
+				record.nextUpdate = std::min(record.nextUpdate, when);
+				++count;
+			}
+		}
+		logger::debug("Refresh requested: {} loaded actors re-pushed", count);
+	}
+
 	void Manager::Bump(RE::Actor* a_actor, float a_amount)
 	{
 		if (!a_actor) {

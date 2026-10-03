@@ -5,6 +5,8 @@ namespace WFNG::Heat
 	namespace
 	{
 		constexpr auto kSunHelm = "SunHelmSurvival.esp"sv;
+		constexpr auto kSurvival = "ccqdrsse001-survivalmode.esl"sv;
+		constexpr RE::FormID kSurvivalWarmUpList = 0x8AA;  // Survival_WarmUpObjectsList: the fires Survival Mode warms the player at
 
 		// local FormIDs in SunHelmSurvival.esp: heat source lists and the global that holds each list's radius
 		struct SunHelmList
@@ -22,9 +24,11 @@ namespace WFNG::Heat
 		constexpr std::array kColdModels{ "burnt"sv, "burned"sv, "unlit"sv, "ashes"sv, "dead"sv, "extinguish"sv, "_off"sv };
 
 		std::unordered_map<RE::FormID, float> g_sunHelm;  // base object -> reach
+		std::unordered_set<RE::FormID>        g_survival;  // base objects from Survival Mode's warm-up list
 		std::unordered_map<RE::FormID, bool>  g_models;   // base object -> looks like a fire
 		float                                 g_sunHelmReach{ 0.0f };
 		std::atomic_size_t                    g_sunHelmCount{ 0 };
+		std::atomic_size_t                    g_survivalCount{ 0 };
 
 		bool Contains(std::string_view a_text, std::string_view a_part)
 		{
@@ -48,12 +52,15 @@ namespace WFNG::Heat
 		}
 
 		// how far the heat of a base object reaches; 0 means it is not a fire
-		float Reach(const RE::TESBoundObject* a_base, bool a_sunHelm, const Settings& a_settings)
+		float Reach(const RE::TESBoundObject* a_base, bool a_sunHelm, bool a_survival, const Settings& a_settings)
 		{
 			if (a_sunHelm) {
 				if (const auto it = g_sunHelm.find(a_base->GetFormID()); it != g_sunHelm.end()) {
 					return it->second;
 				}
+			}
+			if (a_survival && g_survival.contains(a_base->GetFormID())) {
+				return a_settings.fHeatRange;
 			}
 			auto it = g_models.find(a_base->GetFormID());
 			if (it == g_models.end()) {
@@ -96,12 +103,30 @@ namespace WFNG::Heat
 			Load(data, kAll, true);
 		}
 		g_sunHelmCount = g_sunHelm.size();
-		logger::info("Heat sources: SunHelm {} ({} base objects)", g_sunHelmCount ? "found" : "absent", g_sunHelmCount.load());
+
+		// Survival Mode lists its fires without radii; its warm-up check uses its own range, ours stays fHeatRange
+		g_survival.clear();
+		if (auto* list = data ? data->LookupForm<RE::BGSListForm>(kSurvivalWarmUpList, kSurvival) : nullptr) {
+			list->ForEachForm([](RE::TESForm* a_form) {
+				if (a_form) {
+					g_survival.insert(a_form->GetFormID());
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
+		}
+		g_survivalCount = g_survival.size();
+		logger::info("Heat sources: SunHelm {} ({} base objects), Survival Mode {} ({} base objects)", g_sunHelmCount ? "found" : "absent", g_sunHelmCount.load(),
+			g_survivalCount ? "found" : "absent", g_survivalCount.load());
 	}
 
 	std::size_t SunHelmSources()
 	{
 		return g_sunHelmCount;
+	}
+
+	std::size_t SurvivalSources()
+	{
+		return g_survivalCount;
 	}
 
 	bool IsNear(RE::Actor* a_actor, const Settings& a_settings)
@@ -111,6 +136,7 @@ namespace WFNG::Heat
 			return false;
 		}
 		const bool  sunHelm = a_settings.bHeatSunHelm && !g_sunHelm.empty();
+		const bool  survival = a_settings.bHeatSurvivalMode && !g_survival.empty();
 		const float scan = sunHelm ? std::max(a_settings.fHeatRange, g_sunHelmReach) : a_settings.fHeatRange;
 		const auto  position = a_actor->GetPosition();
 
@@ -120,7 +146,7 @@ namespace WFNG::Heat
 			if (!base || a_ref == a_actor) {
 				return RE::BSContainer::ForEachResult::kContinue;
 			}
-			const float reach = Reach(base, sunHelm, a_settings);
+			const float reach = Reach(base, sunHelm, survival, a_settings);
 			if (reach > 0.0f && a_ref->GetPosition().GetDistance(position) <= reach && !a_ref->IsDisabled() && a_ref->Is3DLoaded()) {
 				found = true;
 				return RE::BSContainer::ForEachResult::kStop;

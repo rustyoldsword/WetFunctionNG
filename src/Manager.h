@@ -28,6 +28,8 @@ namespace WFNG
 		void OnSexLabOrgasm(RE::Actor* a_actor);
 		void OnOStim(OStim::Event a_event, std::uint32_t a_thread);
 		void Invalidate(RE::FormID a_actor, std::chrono::milliseconds a_delay);
+		void OnBathed(RE::Actor* a_actor);                     // Bathing in Skyrim finished washing the actor
+		void RefreshAll(std::chrono::milliseconds a_delay);    // another mod rebuilt 3D and may have dropped our overrides
 
 		// any thread
 		struct Gauge

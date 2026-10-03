@@ -138,6 +138,10 @@ namespace WFNG::Menu
 			Slider("Extra drying per hour", s.fHeatDrying, 0.0f, 20.0f, "%.2f");
 			Slider("Fire reach", s.fHeatRange, 50.0f, 1500.0f, "%.0f", "Game units. SunHelm heat sources keep the radius SunHelm gives them.");
 			Toggle("Use SunHelm heat sources", s.bHeatSunHelm, "Takes SunHelm's lists of fires and their radii when SunHelm Survival is installed.");
+			Toggle("Use Survival Mode heat sources", s.bHeatSurvivalMode, "Takes the fires Creation Club Survival Mode warms you at; they use the fire reach above.");
+			if (Heat::SurvivalSources() > 0) {
+				ImGuiMCP::Text("Survival Mode: %zu heat sources", Heat::SurvivalSources());
+			}
 			if (Heat::SunHelmSources() > 0) {
 				ImGuiMCP::Text("SunHelm: detected, %zu heat sources", Heat::SunHelmSources());
 			} else {
@@ -180,6 +184,14 @@ namespace WFNG::Menu
 			ImGuiMCP::Text("Detected: %s", Devious::IsAvailable() ? "yes" : "no");
 			ImGuiMCP::TextWrapped("Native part only for now: worn-device detection and chastity. Vibration, orgasm and edge from a device are not wired up yet - that lives in Devious Devices' own Papyrus scripts, not its native API.");
 			Toggle("Chastity blocks the wet crotch/schlong texture", s.bDeviousBlockGenitals, "A belt or cage physically covers what the texture would show.");
+
+			Heading("Bathing in Skyrim");
+			Toggle("Wet after washing", s.bBathingSoak, "Washing with Bathing in Skyrim leaves the actor wet, also from a tub or with soap away from water.");
+			Slider("Wetness after washing", s.fBathingWetness, 0.0f, 30.0f, "%.1f", "Raised to this value, never lowered. Capped by the maximum wetness.");
+			Slider("NPC drying window", s.fBathingDuration, 0.0f, 24.0f, "%.1f h", "How long a washed NPC stays managed so you can watch them dry.");
+
+			Heading("Other mods");
+			Toggle("Repaint after another mod rebuilds 3D", s.bRefreshOnRebuild, "Afterglow / SLACS and Bathing in Skyrim rebuild actor 3D, which can drop the wet look until the next update.");
 		}
 
 		void __stdcall Automatic()

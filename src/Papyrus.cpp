@@ -87,6 +87,11 @@ namespace WFNG::Papyrus
 			return Manager::Get().GetWetness(a_actor);
 		}
 
+		float GetWetnessCap(Tag*)
+		{
+			return Settings::Get().fWetnessCap;
+		}
+
 		void SetWetness(Tag*, RE::Actor* a_actor, float a_wetness)
 		{
 			Queue(a_actor, [a_wetness](RE::Actor* a) { Manager::Get().SetWetness(a, a_wetness); });
@@ -124,6 +129,16 @@ namespace WFNG::Papyrus
 			});
 		}
 
+		void Bathed(Tag*, RE::Actor* a_actor)
+		{
+			Queue(a_actor, [](RE::Actor* a) { Manager::Get().OnBathed(a); });
+		}
+
+		void RefreshVisuals(Tag*)
+		{
+			SKSE::GetTaskInterface()->AddTask([]() { Manager::Get().RefreshAll(1500ms); });
+		}
+
 		void StopAll(Tag*, bool a_clearData)
 		{
 			SKSE::GetTaskInterface()->AddTask([a_clearData]() { Manager::Get().StopAll(a_clearData); });
@@ -142,12 +157,15 @@ namespace WFNG::Papyrus
 		a_vm->RegisterFunction("IsActive"sv, kScript, IsActive);
 		a_vm->RegisterFunction("GetWetness"sv, kScript, GetWetness);
 		a_vm->RegisterFunction("SetWetness"sv, kScript, SetWetness);
+		a_vm->RegisterFunction("GetWetnessCap"sv, kScript, GetWetnessCap);
 		a_vm->RegisterFunction("ForceValues"sv, kScript, ForceValues);
 		a_vm->RegisterFunction("GetStatus"sv, kScript, GetStatus);
 		a_vm->RegisterFunction("PrintStatus"sv, kScript, PrintStatus);
 		a_vm->RegisterFunction("Report"sv, kScript, Report);
 		a_vm->RegisterFunction("CleanActor"sv, kScript, CleanActor);
 		a_vm->RegisterFunction("StopAll"sv, kScript, StopAll);
+		a_vm->RegisterFunction("Bathed"sv, kScript, Bathed);
+		a_vm->RegisterFunction("RefreshVisuals"sv, kScript, RefreshVisuals);
 		return true;
 	}
 }

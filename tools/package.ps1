@@ -8,7 +8,7 @@ param([switch]$NoArchive)
 $ErrorActionPreference = 'Stop'
 
 $root    = Split-Path -Parent $PSScriptRoot
-$version = '1.2.0'
+$version = '1.4.0'
 $stage   = Join-Path $root 'dist\WetFunction NG'
 $archive = Join-Path $root "dist\WetFunction NG $version.7z"
 $deploy  = if ($env:WFNG_DEPLOY_DIR) { $env:WFNG_DEPLOY_DIR } else { Join-Path $root 'dist\deploy\WetFunction NG' }  # set WFNG_DEPLOY_DIR to your MO2 mod folder

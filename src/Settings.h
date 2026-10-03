@@ -27,7 +27,7 @@ namespace WFNG
 	X(Weather, fWeatherSnow, 0.5f)              \
 	X(Weather, fWeatherNone, -2.0f)             \
 	X(Heat, fHeatDrying, 4.0f)                  \
-	X(Heat, fHeatRange, 400.0f)                 \
+	X(Heat, fHeatRange, 400.0f)                 	X(Bathing, fBathingWetness, 8.0f)           	X(Bathing, fBathingDuration, 2.0f)          \
 	X(Arousal, fGenerateArousal, 1.5f)          \
 	X(Arousal, fArousedThreshold, 75.0f)        \
 	X(SexLab, fSexLabBase, 3.0f)                \
@@ -64,7 +64,7 @@ namespace WFNG
 #define WFNG_BOOL_SETTINGS(X)                   \
 	X(Arousal, bUseArousalThreshold, true)      \
 	X(Heat, bHeatDrying, true)                  \
-	X(Heat, bHeatSunHelm, true)                 \
+	X(Heat, bHeatSunHelm, true)                 	X(Heat, bHeatSurvivalMode, true)            	X(Bathing, bBathingSoak, true)              	X(Visuals, bRefreshOnRebuild, true)         \
 	X(Widget, bWidgetEnabled, true)             \
 	X(Widget, bWidgetAlways, false)             \
 	X(SexLab, bSexLabEnabled, true)             \

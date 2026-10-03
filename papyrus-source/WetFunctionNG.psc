@@ -29,6 +29,8 @@ Function StopEffect(Actor akActor) Global Native
 Bool Function IsActive(Actor akActor) Global Native
 Float Function GetWetness(Actor akActor) Global Native
 Function SetWetness(Actor akActor, Float afWetness) Global Native
+; Maximum wetness from the ini ([Wetness] fWetnessCap). Other mods scale their own wetness range against it.
+Float Function GetWetnessCap() Global Native
 ; afWetness < 0, afSpecular <= 0 and afGlossiness <= 0 release the forced value
 Function ForceValues(Actor akActor, Float afWetness, Float afSpecular, Float afGlossiness) Global Native
 String Function GetStatus(Actor akActor) Global Native
@@ -37,6 +39,12 @@ Function Report(Actor akActor) Global Native
 ; Removes every WetFunction texture/specular override, including ones Wet Function Redux or Dewpoint 1.0 left behind.
 Function CleanActor(Actor akActor) Global Native
 Function StopAll(Bool abClearData) Global Native
+
+; Integration hooks, also used by WetFunctionNGMCM's mod event bridge.
+; akActor has just been washed: soaks the actor ([Bathing] in the ini). Bathing in Skyrim sends BiS_WashActorFinish.
+Function Bathed(Actor akActor) Global Native
+; Another mod rebuilt actor 3D (QueueNiNodeUpdate) and may have dropped our overrides: re-push every loaded actor.
+Function RefreshVisuals() Global Native
 
 Actor Function Target() Global
 	Actor target = Game.GetCurrentCrosshairRef() as Actor

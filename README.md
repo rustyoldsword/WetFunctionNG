@@ -20,7 +20,8 @@ mod - get those from the mod page.
 ## Building
 
 Requires [xmake](https://xmake.io), a copy of
-[CommonLibSSE-NG](https://github.com/CharmedBaryon/CommonLibSSE-NG) at `lib/CommonLibSSE-NG`, and
+[CommonLibSSE-NG](https://github.com/alandtse/CommonLibVR/tree/ng) (alandtse's `ng` branch - its
+`commonlibsse-ng.plugin` xmake rule adds the library dependency that `xmake.lua` relies on) at `lib/CommonLibSSE-NG`, and
 [SKSE-Menu-Framework-3-API](https://github.com/QTR-Modding/SKSE-Menu-Framework-3-API) at
 `lib/SKSE-Menu-Framework-3-API`.
 
@@ -41,6 +42,9 @@ mod manager's mod folder).
   dry/sweat/soaked phase state machine.
 - `Visuals` - pushes wet textures and specular/glossiness through RaceMenu's `IOverrideInterface`
   (skee64).
+- `SkeeNatives` - Skyrim SE 1.5.97 support: RaceMenu SE 0.4.16 has no `IOverrideInterface`, so the
+  same interface is implemented over its validated `NiOverride` native callbacks (contributed by
+  GSVJinx).
 - `Settings` - the X-macro list of every setting in `src/Settings.h`, read from
   `Data/SKSE/Plugins/WetFunctionNG.ini`.
 - `Menu` - the SKSE Menu Framework configuration page.

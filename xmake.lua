@@ -3,7 +3,7 @@ set_xmakever("3.0.0")
 includes("lib/CommonLibSSE-NG")
 
 set_project("WetFunctionNG")
-set_version("1.2.0")
+set_version("1.4.0")
 set_license("MIT")
 set_languages("c++23")
 set_warnings("allextra")
