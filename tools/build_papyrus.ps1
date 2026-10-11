@@ -4,13 +4,19 @@
 # never shipped. A failed compile leaves the previous .pex
 # in place, so every output is checked to be newer than its source.
 #
-# Run: powershell -ExecutionPolicy Bypass -File tools\build_papyrus.ps1
+# Run: powershell -ExecutionPolicy Bypass -File tools\build_papyrus.ps1 -Game <Skyrim SE dir> -Mods <MO2 mods dir>
+
+param(
+    [string]$Game = $env:SKYRIM_GAME,   # Skyrim SE folder with 'Papyrus Compiler' and Data\Scripts\Source
+    [string]$Mods = $env:MO2_MODS       # MO2 mods folder (for SkyUI\scripts\Source)
+)
 
 $ErrorActionPreference = 'Stop'
+if (-not $Game -or -not $Mods) { throw 'Pass -Game and -Mods (or set SKYRIM_GAME and MO2_MODS).' }
 
 $root     = Split-Path -Parent $PSScriptRoot
-$mods     = 'F:\skyrimng\mods'
-$game     = 'F:\skyrimng\basegame'
+$mods     = $Mods
+$game     = $Game
 $compiler = Join-Path $game 'Papyrus Compiler\PapyrusCompiler.exe'
 $src      = Join-Path $root 'papyrus\source'
 $out      = Join-Path $root 'papyrus\out'
