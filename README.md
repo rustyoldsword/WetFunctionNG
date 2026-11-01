@@ -29,6 +29,10 @@ Requires [xmake](https://xmake.io), a copy of
 xmake build WetFunctionNG
 ```
 
+Before building, apply `commonlib-unk8c.patch` inside `lib/CommonLibSSE-NG` (`git apply ../../commonlib-unk8c.patch`).
+Older revisions of the `ng` branch declare an extra `TESObjectREFR` virtual that Skyrim SE/AE do not have, so in an
+SE/AE-only build every later virtual (`IsDead`, `IsInCombat`, ...) is called one slot too far.
+
 Then `tools\build_papyrus.ps1` compiles the Papyrus scripts, `python tools\build_esp.py` generates
 the plugin's ESP (an ESL with a quest that hosts the SKSE Menu Framework page), and
 `tools\package.ps1` assembles a Data-folder layout (set `WFNG_DEPLOY_DIR` to also copy it into a

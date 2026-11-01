@@ -3,7 +3,7 @@ set_xmakever("3.0.0")
 includes("lib/CommonLibSSE-NG")
 
 set_project("WetFunctionNG")
-set_version("1.4.0")
+set_version("1.4.1")
 set_license("MIT")
 set_languages("c++23")
 set_warnings("allextra")
@@ -21,6 +21,9 @@ if is_plat("windows") then
     add_defines("_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS", "WIN32_LEAN_AND_MEAN", "NOMINMAX", "NOGDI", "UNICODE", "_UNICODE")
     add_cxxflags("cl::/permissive-", "cl::/Zc:preprocessor", "cl::/EHsc", "cl::/utf-8")
     add_cxxflags("cl::/wd4068", "cl::/wd4201", "cl::/wd4251", "cl::/wd4275", "cl::/wd4267", "cl::/wd4244", "cl::/wd4996", "cl::/wd4100")
+    -- keep build paths out of the binary (logger source locations, PDB path)
+    add_cxxflags("cl::/d1trimfile:" .. os.projectdir() .. "\\", {force = true})
+    add_shflags("/PDBALTPATH:%_PDB%", {force = true})
 end
 
 -- copies the built DLL/PDB into the MO2 mod folder named by WFNG_DEPLOY_DIR
