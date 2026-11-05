@@ -471,6 +471,20 @@ namespace WFNG::Visuals
 			}
 			const auto geometries = part == kHead ? HeadGeometries(a_actor, state.headNode) : SlotGeometries(a_actor, kMasks[i]);
 			if (geometries.empty()) {
+				// a covered part (gloves, boots) has no skin to restore, but its skin override stays stored in
+				// RaceMenu and comes back on the bare mesh: drop it now, since the state is forgotten below
+				if (!a_look.active && part != kHead) {
+					if (!have.tex.empty()) {
+						writer.Remove(part, Skee::kKeyTexture, have.texIndex);
+					}
+					if (have.spec > 0.0f) {
+						writer.Remove(part, Skee::kKeySpecular, Skee::kNoIndex);
+					}
+					if (have.gloss > 0.0f) {
+						writer.Remove(part, Skee::kKeyGlossiness, Skee::kNoIndex);
+					}
+					have = {};
+				}
 				continue;
 			}
 			auto* const front = geometries.front();
